@@ -3,3 +3,10 @@ gen
 .settings
 local.properties
 *.swp
+target
+R.java
+project/boot/
+project/plugins/lib_managed/
+project/plugins/project/
+project/plugins/src_managed/
+src_managed/
