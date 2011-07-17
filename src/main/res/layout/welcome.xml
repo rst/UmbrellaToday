@@ -50,7 +50,8 @@
         android:padding="3dip"
         android:gravity="bottom|center_horizontal"
         >
-        <Button android:id="@+id/add_alert_welcome"
+        <org.positronicnet.ui.PositronicButton 
+          android:id="@+id/add_alert_welcome"
           android:text="@string/add_alert_welcome"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
