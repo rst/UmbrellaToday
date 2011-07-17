@@ -13,6 +13,7 @@ class Parent(info: ProjectInfo) extends ParentProject(info) {
   class MainProject(info: ProjectInfo) extends AndroidProject(info) with Defaults with MarketPublish with TypedResources {
     val keyalias  = "change-me"
     val scalatest = "org.scalatest" % "scalatest" % "1.3" % "test"
+    val positroniclib = "org.positronicnet" %% "positronicnetlib" % "0.1"
   }
 
   class TestProject(info: ProjectInfo) extends AndroidTestProject(info) with Defaults
