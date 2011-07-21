@@ -153,9 +153,6 @@ object WeatherAlert
         return new GregorianCalendar(1970,01,01);
     }
   }
-
-  private val weekdays = Array( "Sunday", "Monday", "Tuesday", "Wednesday",
-                                "Thursday", "Friday", "Saturday" )
 }
 
 case class WeatherAlert( id:         Long     = WeatherAlert.UNSAVED_ID,
@@ -254,7 +251,9 @@ case class WeatherAlert( id:         Long     = WeatherAlert.UNSAVED_ID,
     // the first day of the week, and not, say, the last...
 
     val cal_day_idx = c.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY
-    return WeatherAlert.weekdays( cal_day_idx )
+    val weekdays = Array( "Sunday", "Monday", "Tuesday", "Wednesday",
+                          "Thursday", "Friday", "Saturday" )
+    return weekdays( cal_day_idx )
   }
 
 }
