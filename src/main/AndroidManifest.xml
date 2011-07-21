@@ -42,6 +42,6 @@
     
     <receiver android:name="AlarmReceiver" />
 
-    <service android:name="AlarmService" />
+    <service android:name="WeatherAlertService" />
   </application>
 </manifest>
