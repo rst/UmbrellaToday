@@ -79,7 +79,6 @@ class AlertsActivity
 
   def editAlert( id: Long ) = {
     val intent = new Intent( this, classOf[ EditAlertActivity ])
-    Log.d( "XXX", "building intent for EditAlertActivity, ID " + id )
     intent.putExtra( "alert_id", id )
     startActivity( intent )
   }
