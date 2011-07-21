@@ -50,7 +50,15 @@ class RepeatPreference( ctx: Context, attrs: AttributeSet )
   }
 
   protected def resetSummary = {
-    setSummary( if (currentChoices.isEmpty) "Never"
-                else currentChoices.toArray.reduceLeft{ _ + "," + _ } )
+    if (currentChoices.isEmpty)
+      setSummary( "Never" )
+    else {
+      val currentChoiceTags =
+        for (value <- getEntryValues
+             if (currentChoices.contains( value.toString )))
+        yield value
+
+      setSummary( currentChoiceTags.reduceLeft{ _ + ", " + _ } )
+    }
   }
 }
