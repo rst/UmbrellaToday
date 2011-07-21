@@ -18,6 +18,7 @@ class RepeatPreference( ctx: Context, attrs: AttributeSet )
   def setChoices( choices: Set[ String ] ): Unit = {
     this.currentChoices = choices
     this.newChoices     = choices
+    resetSummary
   }
 
   def getChoices = currentChoices
@@ -25,8 +26,7 @@ class RepeatPreference( ctx: Context, attrs: AttributeSet )
   override def onDialogClosed( positiveResult: Boolean ): Unit = {
     if (positiveResult) {
       this.currentChoices = this.newChoices
-      setSummary( if (currentChoices.isEmpty) "Never"
-                  else currentChoices.toArray.reduceLeft{ _ + "," + _ } )
+      resetSummary
     }
   }
 
@@ -47,5 +47,10 @@ class RepeatPreference( ctx: Context, attrs: AttributeSet )
       yield currentChoices.contains( value.toString )
 
     builder.setMultiChoiceItems( entryVals, entrySelected, listener )
+  }
+
+  protected def resetSummary = {
+    setSummary( if (currentChoices.isEmpty) "Never"
+                else currentChoices.toArray.reduceLeft{ _ + "," + _ } )
   }
 }

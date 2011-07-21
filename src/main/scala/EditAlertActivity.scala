@@ -7,8 +7,6 @@ import android.preference.EditTextPreference
 import android.preference.PreferenceActivity
 import android.preference.PreferenceManager
 
-import android.util.Log
-
 class EditAlertActivity
   extends PreferenceActivity
   with UmbrellaActivityHelpers
@@ -23,7 +21,6 @@ class EditAlertActivity
     // Get alert to operate on.  
 
     val alertId = getIntent.getExtras.getLong( "alert_id", -1 )
-    Log.d( "XXX", "starting EditAlertActivity, ID " + alertId )
     val alert = WeatherAlert.find( alertId )
 
     findPref[ CheckBoxPreference ]("enable_alert").setChecked( alert.enabled )
@@ -47,6 +44,7 @@ class EditAlertActivity
              .enabled( findPref[ CheckBoxPreference ]("enable_alert").isChecked)
 
       WeatherAlert.save( updatedAlert )
+      toastAlert( updatedAlert )
     }
   }
 }

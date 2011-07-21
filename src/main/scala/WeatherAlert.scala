@@ -74,13 +74,10 @@ object WeatherAlert
   }
 
   def save( w: WeatherAlert ) = doChange {
-    Log.d( "XXX", "Entering save with id " + w.id.toString )
     if ( w.id == WeatherAlert.UNSAVED_ID ) {
-      Log.d( "XXX", "Insert" )
       table.insert( updateValues( w ): _* )
     }
     else {
-      Log.d( "XXX", "Update" )
       table.whereEq( "_id" -> w.id ).update( updateValues( w ): _* )
     }
   }
