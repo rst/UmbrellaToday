@@ -42,8 +42,14 @@ class WeatherAlertService
         showErrorNotification("Garbled forecast for location", alertId)
     }
 
-    if (! alertRec.isRepeating ) 
+    if (! alertRec.isRepeating ) {
+      // Disable this alert.  Forces a reschedule, like any other change.
       WeatherAlert.disable( alertRec )
+    }
+    else {
+      // No changes in DB.  Reschedule anyway.
+      WeatherAlertDb.scheduleNextWeatherAlert
+    }
   }
 
   // Notifications
