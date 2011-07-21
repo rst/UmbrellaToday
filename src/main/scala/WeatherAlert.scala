@@ -234,7 +234,7 @@ case class WeatherAlert( id:         Long     = WeatherAlert.UNSAVED_ID,
     alertTime.clear( Calendar.SECOND )
     alertTime.clear( Calendar.MILLISECOND )
 
-    if (alertTime.after( now ))         // Missed already.  Same time tomorrow?
+    if (now.after( alertTime ))         // Missed already.  Same time tomorrow?
       bumpOneDay( alertTime )
 
     if ( isRepeating ) {
