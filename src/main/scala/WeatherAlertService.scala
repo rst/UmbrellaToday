@@ -40,6 +40,9 @@ class WeatherAlertService
                           alertId )
       else if ( needUmbrella == null )
         showErrorNotification("Garbled forecast for location", alertId)
+      else
+        Log.d( UmbrellaTodayApplication.logTag, 
+               "Weather alert got " + needUmbrella )
     }
 
     if (! alertRec.isRepeating ) {
