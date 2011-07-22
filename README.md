@@ -38,5 +38,6 @@ Background image from http://www.flickr.com/photos/protectorrr/2406577829/
 
 Umbrella Today Web app by thoughtbot
 
-Original Java version written at a Boston Android hackfest; typed by Matt Horan
+Original Java version written at a Boston Android hackfest; typed by Matt Horan.
+
 Rewritten in Scala (with Positronic Net) by Robert Thau
