@@ -1,6 +1,7 @@
 package org.bostonandroid.umbrellatoday
 
 import org.positronicnet.db._
+import org.positronicnet.content.ContentValue
 
 import org.positronicnet.util.WorkerThread
 import org.positronicnet.util.ChangeManager
@@ -121,7 +122,7 @@ object WeatherAlert
                         c.getBoolean( 10 ),                  // autolocate
                         c.getBoolean( 11 ))                  // enabled
 
-  private def updateValues( w: WeatherAlert ): Seq[( String, SqlValue )] = {
+  private def updateValues( w: WeatherAlert ): Seq[( String, ContentValue )] = {
     Seq( "alert_at"   -> stringize( w.alertAt ),
          "sunday"     -> w.sunday,
          "monday"     -> w.monday,
