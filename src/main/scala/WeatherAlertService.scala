@@ -100,7 +100,10 @@ class WeatherAlertService
       null
     else {
       val loc = locationManager.getLastKnownLocation( locationProvider )
-      loc.getLatitude + "," + loc.getLongitude
+      if (loc != null)
+        loc.getLatitude + "," + loc.getLongitude
+      else
+        null
     }
 }
 
