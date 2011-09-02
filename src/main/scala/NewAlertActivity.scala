@@ -2,6 +2,9 @@ package org.bostonandroid.umbrellatoday;
 
 import org.bostonandroid.timepreference.TimePreference
 
+import org.positronicnet.orm._
+import org.positronicnet.orm.Actions._
+
 import android.app.Activity
 
 import android.preference.CheckBoxPreference
@@ -35,7 +38,7 @@ class NewAlertActivity
              .location( findPref[ EditTextPreference ]("location").getText )
              .enabled( findPref[ CheckBoxPreference ]("enable_alert").isChecked)
 
-      WeatherAlert.save( newAlert )
+      WeatherAlerts ! Save( newAlert )
       toastAlert( newAlert )
       setResult( Activity.RESULT_OK )
       finish()

@@ -3,6 +3,9 @@ package org.bostonandroid.umbrellatoday
 import org.positronicnet.ui.PositronicActivityHelpers
 import org.positronicnet.ui.IndexedSeqSourceAdapter
 
+import org.positronicnet.orm._
+import org.positronicnet.orm.Actions._
+
 import android.app.ListActivity
 import android.content.Intent
 import android.text.format.DateFormat
@@ -16,7 +19,7 @@ import android.util.Log
 class WeatherAlertsAdapter( activity: AlertsActivity )
   extends IndexedSeqSourceAdapter( 
     activity,
-    WeatherAlert.all,
+    WeatherAlerts.records,
     itemViewResourceId = android.R.layout.simple_list_item_checked )
 {
   override def bindView( view: View, alert: WeatherAlert ) = {
@@ -38,7 +41,7 @@ class AlertsActivity
     // the WelcomeActivity.  And if the number changes (e.g., due to
     // a delete), reschedule
 
-    onChangeTo( WeatherAlert.count ){ count =>
+    onChangeTo( WeatherAlerts.count ){ count =>
       if (count == 0) {
         startActivity( new Intent( this, classOf[ WelcomeActivity ]));
         finish
@@ -65,7 +68,8 @@ class AlertsActivity
       ( menuInfo, view ) => editAlert( getItemId( menuInfo ))
     }
     onContextItemSelected( R.id.delete ){ 
-      ( menuInfo, view ) => WeatherAlert.deleteWithId( getItemId( menuInfo ))
+      ( menuInfo, view ) => 
+        WeatherAlerts.whereEq( "_id" -> getItemId( menuInfo )) ! DeleteAll
     }
     onOptionsItemSelected( R.id.about_button ) {
       startActivity( new Intent( this, classOf[ AboutActivity ]))

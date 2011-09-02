@@ -1,12 +1,10 @@
 package org.bostonandroid.umbrellatoday
 
 import org.positronicnet.db._
-import org.positronicnet.content.ContentValue
-
+import org.positronicnet.orm._
+import org.positronicnet.notifications.Actions._
 import org.positronicnet.util.WorkerThread
-import org.positronicnet.util.ChangeManager
 
-import android.content.ContentValues
 import android.util.Log
 
 import java.util.Calendar
@@ -21,6 +19,7 @@ object WeatherAlertDb
   extends Database( filename = "UmbrellaToday", 
                     logTag   = UmbrellaTodayApplication.logTag ) 
   with WeatherAlertScheduler
+  with WorkerThread
 {
   // Compatible with prior schema.  FWIW, this includes BOOLEAN and TIME
   // types which Sqlite doesn't formally support.  It fakes them up by
@@ -50,114 +49,38 @@ object WeatherAlertDb
   override def version = 4
 }
 
-object WeatherAlert 
-  extends ChangeManager( WeatherAlertDb )
+object WeatherAlerts
+  extends RecordManager[ WeatherAlert ]( WeatherAlertDb( "alerts" ))
 {
-  // Database operations
+  // Our WeatherAlert records present "alertAt" as a Calendar,
+  // converting as needed from the underlying string, which they
+  // call "rawAlertAt".  It's the string that gets persisted into
+  // the "alert_at" column; that's special-cased here:
 
-  private val UNSAVED_ID = -1
-  private val table = WeatherAlertDb( "alerts" )
+  mapField( "rawAlertAt", "alert_at" )
 
-  def find( id: Long ) = WeatherAlert.fromDbRows( table.whereEq("_id" -> id))(0)
+  // Force rescheduling on any change
+
+  this ! AddWatcher( this ){ dummy => WeatherAlertDb.scheduleNextWeatherAlert }
+
+  // Next alert we'll need to schedule.  (We only do one at a time.)
 
   def findNextAlert: WeatherAlert = {
 
-    val enabledAlerts = table.whereEq( "enabled" -> true )
+    val enabledAlerts = this.records.fetchOnThisThread
     var bestYet: WeatherAlert = null
     var bestTime: Long = -1
 
-    for (nextAlert <- WeatherAlert.fromDbRows( enabledAlerts )) {
+    for (nextAlert <- enabledAlerts ) {
       if ( bestYet == null || nextAlert.alertTime < bestYet.alertTime )
         bestYet = nextAlert
     }
 
     return bestYet
   }
-
-  def save( w: WeatherAlert ) = doChange {
-    if ( w.id == WeatherAlert.UNSAVED_ID ) {
-      table.insert( updateValues( w ): _* )
-    }
-    else {
-      table.whereEq( "_id" -> w.id ).update( updateValues( w ): _* )
-    }
-  }
-
-  def disable( w: WeatherAlert ) = save( w.enabled( false ))
-
-  def deleteWithId( id: Long ) = doChange {
-    table.whereEq( "_id" -> id ).delete
-  }
-
-  // A "source" for the current list of WeatherAlerts, which will automatically
-  // requery whenever we "doChange" above...
-
-  lazy val all = valueStream{ WeatherAlert.fromDbRows( table.order("_id asc"))}
-
-  // and number available...
-
-  lazy val count = valueStream{ table.count }
-
-  // Also force rescheduling on any change
-
-  val force_resched = valueStream{ WeatherAlertDb.scheduleNextWeatherAlert }
-
-  // Database donkey work
-
-  private def fromDbRows( query: DbQuery ) = 
-    for (c <- query.select( "_id", "alert_at",
-                            "sunday", "monday", "tuesday", "wednesday", 
-                            "thursday", "friday", "saturday",
-                            "location", "autolocate", "enabled" ))
-    yield WeatherAlert( c.getLong( 0 ),                      // id
-                        calendarize( c.getString ( 1 )),     // alert_at
-                        c.getBoolean( 2 ),                   // sunday
-                        c.getBoolean( 3 ),                   // monday
-                        c.getBoolean( 4 ),                   // tuesday
-                        c.getBoolean( 5 ),                   // wednesday
-                        c.getBoolean( 6 ),                   // thursday
-                        c.getBoolean( 7 ),                   // friday
-                        c.getBoolean( 8 ),                   // saturday
-                        c.getString( 9 ),                    // location
-                        c.getBoolean( 10 ),                  // autolocate
-                        c.getBoolean( 11 ))                  // enabled
-
-  private def updateValues( w: WeatherAlert ): Seq[( String, ContentValue )] = {
-    Seq( "alert_at"   -> stringize( w.alertAt ),
-         "sunday"     -> w.sunday,
-         "monday"     -> w.monday,
-         "tuesday"    -> w.tuesday,
-         "wednesday"  -> w.wednesday,
-         "thursday"   -> w.thursday,
-         "friday"     -> w.friday,
-         "saturday"   -> w.saturday,
-         "location"   -> w.location,
-         "autolocate" -> w.autolocate,
-         "enabled"    -> w.enabled )
-  }
-
-  // Conversions
-
-  lazy val dateFormatter = new SimpleDateFormat( "kk:mm" )
-
-  private def stringize( c: Calendar ) = dateFormatter.format( c.getTime )
-
-  private def calendarize( s: String ): Calendar = {
-    try {
-      val c = Calendar.getInstance
-      c.setTime( dateFormatter.parse( s ))
-      return c
-    }
-    catch { 
-      case e: ParseException =>
-        Log.e( UmbrellaTodayApplication.logTag, "time parse error", e );
-        return new GregorianCalendar(1970,01,01);
-    }
-  }
 }
 
-case class WeatherAlert( id:         Long     = WeatherAlert.UNSAVED_ID,
-                         alertAt:    Calendar = new GregorianCalendar(1970,1,1),
+case class WeatherAlert( rawAlertAt: String   = "00:00",
                          sunday:     Boolean  = false,
                          monday:     Boolean  = false,
                          tuesday:    Boolean  = false,
@@ -167,9 +90,14 @@ case class WeatherAlert( id:         Long     = WeatherAlert.UNSAVED_ID,
                          saturday:   Boolean  = false,
                          location:   String   = null,
                          autolocate: Boolean  = false,
-                         enabled:    Boolean  = false )
+                         enabled:    Boolean  = false,
+                         id:         Long     = ManagedRecord.unsavedId
+                       )
+  extends ManagedRecord( WeatherAlerts )
 {
   // Convenience pseudo-columns
+
+  lazy val alertAt = calendarize( rawAlertAt )
 
   lazy val alertTime = computeNextAlertTimeInMillis
   lazy val isRepeating = sunday || monday || tuesday || wednesday ||
@@ -189,36 +117,20 @@ case class WeatherAlert( id:         Long     = WeatherAlert.UNSAVED_ID,
 
   // "Fluid updates"
 
-  def dinkedCopy( id:         Long     = this.id,       
-                  alertAt:    Calendar = this.alertAt,
-                  sunday:     Boolean  = this.sunday,   
-                  monday:     Boolean  = this.monday, 
-                  tuesday:    Boolean  = this.tuesday,  
-                  wednesday:  Boolean  = this.wednesday,
-                  thursday:   Boolean  = this.thursday, 
-                  friday:     Boolean  = this.friday,
-                  saturday:   Boolean  = this.saturday,
-                  location:   String   = this.location, 
-                  autolocate: Boolean  = this.autolocate,
-                  enabled:    Boolean  = this.enabled ) =
-    WeatherAlert( id, alertAt, 
-                  sunday, monday, tuesday, wednesday, 
-                  thursday, friday, saturday,
-                  location, autolocate, enabled )
-
-  def alertAt    ( t: Calendar ) = dinkedCopy( alertAt    = t )
-  def location   ( l: String   ) = dinkedCopy( location   = l )
-  def autolocate ( b: Boolean  ) = dinkedCopy( autolocate = b )
-  def enabled    ( b: Boolean  ) = dinkedCopy( enabled    = b )
+  def location   ( l: String   ): WeatherAlert = copy( location   = l )
+  def autolocate ( b: Boolean  ): WeatherAlert = copy( autolocate = b )
+  def enabled    ( b: Boolean  ): WeatherAlert = copy( enabled    = b )
+  def alertAt    ( t: Calendar ): WeatherAlert = 
+    copy( rawAlertAt = stringize( t ))
   
   def repeatDays ( days: Set[ String ] ) =
-    dinkedCopy( sunday    = days.contains( "Sunday" ),
-                monday    = days.contains( "Monday" ),
-                tuesday   = days.contains( "Tuesday" ),
-                wednesday = days.contains( "Wednesday" ),
-                thursday  = days.contains( "Thursday" ),
-                friday    = days.contains( "Friday" ),
-                saturday  = days.contains( "Saturday" ))
+    copy( sunday    = days.contains( "Sunday" ),
+          monday    = days.contains( "Monday" ),
+          tuesday   = days.contains( "Tuesday" ),
+          wednesday = days.contains( "Wednesday" ),
+          thursday  = days.contains( "Thursday" ),
+          friday    = days.contains( "Friday" ),
+          saturday  = days.contains( "Saturday" ))
 
   // Calendar mummery
 
@@ -257,5 +169,23 @@ case class WeatherAlert( id:         Long     = WeatherAlert.UNSAVED_ID,
     return weekdays( cal_day_idx )
   }
 
+  // Conversions
+
+  lazy val dateFormatter = new SimpleDateFormat( "kk:mm" )
+
+  private def stringize( c: Calendar ) = dateFormatter.format( c.getTime )
+
+  private def calendarize( s: String ): Calendar = {
+    try {
+      val c = Calendar.getInstance
+      c.setTime( dateFormatter.parse( s ))
+      return c
+    }
+    catch { 
+      case e: ParseException =>
+        Log.e( UmbrellaTodayApplication.logTag, "time parse error", e );
+        return new GregorianCalendar(1970,01,01);
+    }
+  }
 }
                          

@@ -19,7 +19,7 @@ trait WeatherAlertScheduler
 
   def scheduleNextWeatherAlert = {
 
-    val alert = WeatherAlert.findNextAlert
+    val alert = WeatherAlerts.findNextAlert
 
     val alarmManager = 
       context.getSystemService(Context.ALARM_SERVICE).asInstanceOf[AlarmManager]

@@ -1,5 +1,8 @@
 package org.bostonandroid.umbrellatoday;
 
+import org.positronicnet.orm._
+import org.positronicnet.orm.Actions._
+
 import org.bostonandroid.timepreference.TimePreference
 
 import android.preference.CheckBoxPreference
@@ -21,30 +24,32 @@ class EditAlertActivity
     // Get alert to operate on.  
 
     val alertId = getIntent.getExtras.getLong( "alert_id", -1 )
-    val alert = WeatherAlert.find( alertId )
 
-    findPref[ CheckBoxPreference ]("enable_alert").setChecked( alert.enabled )
-    findPref[ RepeatPreference ]("repeat").setChoices( alert.repeatDays )
-    findPref[ CheckBoxPreference ]("detect_location").setChecked(
-      alert.autolocate )
-    findPref[ EditTextPreference ]("location").setText( alert.location )
+    WeatherAlerts ! Find( alertId ){ alert => {
 
-    findPref[ TimePreference ]("time").setTime( 
-      TimePreference.formatter.format( alert.alertTime ))
-    findPref[ TimePreference ]("time").setSummary( 
-      TimePreference.summaryFormatter(this).format( alert.alertTime ))
+      findPref[ CheckBoxPreference ]("enable_alert").setChecked( alert.enabled )
+      findPref[ RepeatPreference ]("repeat").setChoices( alert.repeatDays )
+      findPref[ CheckBoxPreference ]("detect_location").setChecked(
+        alert.autolocate )
+      findPref[ EditTextPreference ]("location").setText( alert.location )
 
-    findView( TR.update_alert ).onClick{ 
+      findPref[ TimePreference ]("time").setTime( 
+        TimePreference.formatter.format( alert.alertTime ))
+      findPref[ TimePreference ]("time").setSummary( 
+        TimePreference.summaryFormatter(this).format( alert.alertTime ))
 
-      val updatedAlert = 
-        alert.alertAt( findPref[ TimePreference ]("time").getTime)
-             .repeatDays( findPref[ RepeatPreference ]("repeat").getChoices)
-             .autolocate( findPref[ CheckBoxPreference ]("detect_location").isChecked )
-             .location( findPref[ EditTextPreference ]("location").getText )
-             .enabled( findPref[ CheckBoxPreference ]("enable_alert").isChecked)
+      findView( TR.update_alert ).onClick{ 
 
-      WeatherAlert.save( updatedAlert )
-      toastAlert( updatedAlert )
-    }
+        val updatedAlert = 
+          alert.alertAt( findPref[ TimePreference ]("time").getTime)
+           .repeatDays( findPref[ RepeatPreference ]("repeat").getChoices)
+           .autolocate( findPref[ CheckBoxPreference ]("detect_location").isChecked )
+           .location( findPref[ EditTextPreference ]("location").getText )
+           .enabled( findPref[ CheckBoxPreference ]("enable_alert").isChecked)
+
+        WeatherAlerts ! Save( updatedAlert )
+        toastAlert( updatedAlert )
+      }
+    }}
   }
 }
