@@ -8,7 +8,7 @@ import android.util.Log
 import android.text.format.DateFormat
 
 trait WeatherAlertScheduler 
-  extends org.positronicnet.util.AppFacility
+  extends org.positronicnet.facility.AppFacility
 {
   private var context: Context = null
 

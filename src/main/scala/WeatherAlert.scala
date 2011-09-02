@@ -3,7 +3,6 @@ package org.bostonandroid.umbrellatoday
 import org.positronicnet.db._
 import org.positronicnet.orm._
 import org.positronicnet.notifications.Actions._
-import org.positronicnet.util.WorkerThread
 
 import android.util.Log
 
@@ -19,7 +18,6 @@ object WeatherAlertDb
   extends Database( filename = "UmbrellaToday", 
                     logTag   = UmbrellaTodayApplication.logTag ) 
   with WeatherAlertScheduler
-  with WorkerThread
 {
   // Compatible with prior schema.  FWIW, this includes BOOLEAN and TIME
   // types which Sqlite doesn't formally support.  It fakes them up by
