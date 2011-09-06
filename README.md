@@ -7,14 +7,16 @@ This version is written in Scala, using the Positronic Net library
 (version 0.1).  The build procedure, using sbt (the "simple build
 tool" --- or so they call it) are something like the following:
 
-First, install sbt 0.7 per [instructions](http://code.google.com/p/simple-build-tool/wiki/Setup).  Note that sbt 0.10 will not (yet) work, pending updates to the sbt-android plugin.
+First, install sbt 0.10.0 per [instructions](https://github.com/harrah/xsbt/wiki/Setup).  
 
-Then, get a copy of [Positronic Net itself](https://github.com/rst/positronic_net), and publish to your local ivy repo:
+Next, install a current version of the [sbt-android-plugin](https://github.com/jberkel/android-plugin).  (Building and installing a snapshot may be required.) 
+
+Then, get a copy of [Positronic Net itself](https://github.com/rst/positronic_net), sbt10 branch, and publish to your local ivy repo:
 
     $ cd [your workspace]
     $ git clone https://github.com/rst/positronic_net.git
+    $ git checkout -b sbt10 origin/sbt10
     $ cd positronic_net
-    $ sbt update
     $ sbt "project PositronicNetLib" publish-local
 
 (This does just publish a jar file, containing the classes, and nothing but
@@ -26,10 +28,9 @@ Lastly compile and build this app:
     $ cd [your workspace]
     $ git clone https://github.com/rst/UmbrellaToday.git
     $ cd UmbrellaToday
-    $ sbt update
-    $ sbt package-debug
+    $ sbt android:package-debug
 
-If that all worked, you should wind up with an apk in `.../UmbrellaToday/target/scala_2.8.1/umbrella-today_2.8.1-0.1.apk`
+If that all worked, you should wind up with an apk in `.../UmbrellaToday/target//umbrella-today-0.1.apk`
 
 Ownerships
 ----------
