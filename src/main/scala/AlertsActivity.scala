@@ -19,7 +19,7 @@ import android.util.Log
 class WeatherAlertsAdapter( activity: AlertsActivity )
   extends IndexedSeqSourceAdapter( 
     activity,
-    WeatherAlerts.records,
+    WeatherAlerts,
     itemViewResourceId = android.R.layout.simple_list_item_checked )
 {
   override def bindView( view: View, alert: WeatherAlert ) = {
