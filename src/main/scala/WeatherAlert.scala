@@ -65,7 +65,7 @@ object WeatherAlerts
 
   def findNextAlert: WeatherAlert = {
 
-    val enabledAlerts = this.records.fetchOnThisThread
+    val enabledAlerts = this.whereEq( "enabled" -> true ).fetchOnThisThread
     var bestYet: WeatherAlert = null
     var bestTime: Long = -1
 
