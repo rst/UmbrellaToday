@@ -16,7 +16,6 @@ object General {
     TypedResources.settings ++
     AndroidMarketPublish.settings ++ Seq (
       keyalias in Android := "change-me",
-      proguardInJars in Android ++= ((file("lib") ** "*.jar") get),
       libraryDependencies ++= Seq(
         "org.scalatest"     %% "scalatest"        % "1.6.1"        % "test",
         "org.positronicnet" %% "positronicnetlib" % "0.3-SNAPSHOT"
