@@ -50,7 +50,7 @@ class WeatherAlertService
 
     if (! alertRec.isRepeating ) {
       // Disable this alert.  Forces a reschedule, like any other change.
-      WeatherAlerts.onThisThread( Save( alertRec.enabled( false )))
+      WeatherAlerts.onThisThread( Save( alertRec.enabled_:=( false )))
     }
     else {
       // No changes in DB.  Reschedule anyway.

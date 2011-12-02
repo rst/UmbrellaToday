@@ -16,28 +16,18 @@ class NewAlertActivity
   extends PreferenceActivity
   with UmbrellaActivityHelpers
 {
-  def findPref[ T ]( s: String ):T = findPreference( s ).asInstanceOf[ T ]
+  val binder = new WeatherUiBinder( this )
 
   onCreate {
 
     addPreferencesFromResource( R.xml.alert );
     setContentView( R.layout.new_alert );
 
-    val alert = new WeatherAlert
-
     // Force initial time choice...
     getPreferenceScreen().onItemClick(null, null, 1, 0);
 
     findView( TR.save_alert ).onClick{ 
-
-      val newAlert = 
-        (new WeatherAlert)
-          .alertAt( findPref[ TimePreference ]("alertAt").getTime)
-          .repeatDays( findPref[ RepeatPreference ]("repeatDays").getChoices)
-          .autolocate( findPref[ CheckBoxPreference ]("autolocate").isChecked )
-          .location( findPref[ EditTextPreference ]("location").getText )
-          .enabled( findPref[ CheckBoxPreference ]("enabled").isChecked)
-
+      val newAlert = binder.update( new WeatherAlert, getPreferenceScreen )
       WeatherAlerts ! Save( newAlert )
       toastAlert( newAlert )
       setResult( Activity.RESULT_OK )

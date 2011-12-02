@@ -92,6 +92,7 @@ case class WeatherAlert( rawAlertAt: String   = "00:00",
                          id:         Long     = ManagedRecord.unsavedId
                        )
   extends ManagedRecord( WeatherAlerts )
+  with org.positronicnet.util.ReflectiveProperties // XXX
 {
   // Convenience pseudo-columns
 
@@ -115,13 +116,13 @@ case class WeatherAlert( rawAlertAt: String   = "00:00",
 
   // "Fluid updates"
 
-  def location   ( l: String   ): WeatherAlert = copy( location   = l )
-  def autolocate ( b: Boolean  ): WeatherAlert = copy( autolocate = b )
-  def enabled    ( b: Boolean  ): WeatherAlert = copy( enabled    = b )
-  def alertAt    ( t: Calendar ): WeatherAlert = 
+  def location_:=   ( l: String   ): WeatherAlert = copy( location   = l )
+  def autolocate_:= ( b: Boolean  ): WeatherAlert = copy( autolocate = b )
+  def enabled_:=    ( b: Boolean  ): WeatherAlert = copy( enabled    = b )
+  def alertAt_:=    ( t: Calendar ): WeatherAlert = 
     copy( rawAlertAt = stringize( t ))
   
-  def repeatDays ( days: Set[ String ] ) =
+  def repeatDays_:= ( days: Set[ String ] ) =
     copy( sunday    = days.contains( "Sunday" ),
           monday    = days.contains( "Monday" ),
           tuesday   = days.contains( "Tuesday" ),
