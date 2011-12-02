@@ -32,11 +32,11 @@ class NewAlertActivity
 
       val newAlert = 
         (new WeatherAlert)
-             .alertAt( findPref[ TimePreference ]("time").getTime)
-             .repeatDays( findPref[ RepeatPreference ]("repeat").getChoices)
-             .autolocate( findPref[ CheckBoxPreference ]("detect_location").isChecked )
-             .location( findPref[ EditTextPreference ]("location").getText )
-             .enabled( findPref[ CheckBoxPreference ]("enable_alert").isChecked)
+          .alertAt( findPref[ TimePreference ]("alertAt").getTime)
+          .repeatDays( findPref[ RepeatPreference ]("repeatDays").getChoices)
+          .autolocate( findPref[ CheckBoxPreference ]("autolocate").isChecked )
+          .location( findPref[ EditTextPreference ]("location").getText )
+          .enabled( findPref[ CheckBoxPreference ]("enabled").isChecked)
 
       WeatherAlerts ! Save( newAlert )
       toastAlert( newAlert )

@@ -27,25 +27,25 @@ class EditAlertActivity
 
     WeatherAlerts ! Find( alertId ){ alert => {
 
-      findPref[ CheckBoxPreference ]("enable_alert").setChecked( alert.enabled )
-      findPref[ RepeatPreference ]("repeat").setChoices( alert.repeatDays )
-      findPref[ CheckBoxPreference ]("detect_location").setChecked(
+      findPref[ CheckBoxPreference ]("enabled").setChecked( alert.enabled )
+      findPref[ RepeatPreference ]("repeatDays").setChoices( alert.repeatDays )
+      findPref[ CheckBoxPreference ]("autolocate").setChecked(
         alert.autolocate )
       findPref[ EditTextPreference ]("location").setText( alert.location )
 
-      findPref[ TimePreference ]("time").setTime( 
+      findPref[ TimePreference ]("alertAt").setTime( 
         TimePreference.formatter.format( alert.alertTime ))
-      findPref[ TimePreference ]("time").setSummary( 
+      findPref[ TimePreference ]("alertAt").setSummary( 
         TimePreference.summaryFormatter(this).format( alert.alertTime ))
 
       findView( TR.update_alert ).onClick{ 
 
         val updatedAlert = 
-          alert.alertAt( findPref[ TimePreference ]("time").getTime)
-           .repeatDays( findPref[ RepeatPreference ]("repeat").getChoices)
-           .autolocate( findPref[ CheckBoxPreference ]("detect_location").isChecked )
+          alert.alertAt( findPref[ TimePreference ]("alertAt").getTime)
+           .repeatDays( findPref[ RepeatPreference ]("repeatDays").getChoices)
+           .autolocate( findPref[ CheckBoxPreference ]("autolocate").isChecked )
            .location( findPref[ EditTextPreference ]("location").getText )
-           .enabled( findPref[ CheckBoxPreference ]("enable_alert").isChecked)
+           .enabled( findPref[ CheckBoxPreference ]("enabled").isChecked)
 
         WeatherAlerts ! Save( updatedAlert )
         toastAlert( updatedAlert )
