@@ -89,9 +89,9 @@ case class WeatherAlert( rawAlertAt: String   = "00:00",
                          location:   String   = null,
                          autolocate: Boolean  = false,
                          enabled:    Boolean  = false,
-                         id:         Long     = ManagedRecord.unsavedId
+                         id: RecordId[WeatherAlert] = WeatherAlerts.unsavedId
                        )
-  extends ManagedRecord( WeatherAlerts )
+  extends ManagedRecord
   with org.positronicnet.util.ReflectiveProperties // XXX
 {
   // Convenience pseudo-columns

@@ -21,7 +21,8 @@ class EditAlertActivity
     addPreferencesFromResource( R.xml.alert );
     setContentView( R.layout.edit_alert );
 
-    val alertId = getIntent.getExtras.getLong( "alert_id", -1 )
+    val alertIdRaw = getIntent.getExtras.getLong( "alert_id", -1 )
+    val alertId = WeatherAlerts.idFromLong( alertIdRaw )
 
     WeatherAlerts ! Find( alertId ){ alert => {
 

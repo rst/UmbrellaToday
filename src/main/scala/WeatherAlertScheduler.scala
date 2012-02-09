@@ -44,7 +44,7 @@ trait WeatherAlertScheduler
     new Intent( c, classOf[ AlarmReceiver ] )
 
   private def makeIntent( c: Context, w: WeatherAlert ): Intent = 
-    makeIntent( c ).putExtra( "alert_id", w.id )
+    makeIntent( c ).putExtra( "alert_id", w.id.id )
 
   private def makePendingIntent( context: Context, intent: Intent ) = 
     PendingIntent.getBroadcast( context, 0, intent,

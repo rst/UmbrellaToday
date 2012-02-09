@@ -28,7 +28,7 @@ class WeatherAlertsAdapter( activity: AlertsActivity )
     ctv.setChecked( alert.enabled )
   }
 
-  override def getItemId( posn: Int ) = seq( posn ).id
+  override def getItemId( posn: Int ) = seq( posn ).id.id
 }
 
 class AlertsActivity

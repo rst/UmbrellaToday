@@ -23,10 +23,12 @@ class WeatherAlertService
 {
   override protected def doWakefulWork( intent: Intent ): Unit = {
 
-    val alertId  = intent.getExtras.getLong( "alert_id" )
-    val alertRec = WeatherAlerts.findOnThisThread( alertId )
-    val location = (if (alertRec.autolocate) maybeCurrentLocation
-                    else alertRec.location)
+    val alertId       = intent.getExtras.getLong( "alert_id" )
+    val alertIdCooked = WeatherAlerts.idFromLong( alertId )
+    val alertRec      = WeatherAlerts.findOnThisThread( alertIdCooked )
+    val location      = (if (alertRec.autolocate) maybeCurrentLocation
+                         else alertRec.location)
+
     val url = (if (location == null) null
                else retrieveLocationUrl( location ))
 
